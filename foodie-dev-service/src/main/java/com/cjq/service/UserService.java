@@ -1,6 +1,8 @@
 package com.cjq.service;
 
 import com.cjq.pojo.Stu;
+import com.cjq.pojo.Users;
+import com.cjq.pojo.bo.UsersBO;
 
 import java.util.List;
 
@@ -16,4 +18,12 @@ public interface UserService {
      * @return
      */
     boolean queryUserNameIsExists(String username);
+
+    /**
+     * 创建用户
+     *
+     * @param usersBO
+     * @return
+     */
+    Users createUser(UsersBO usersBO);
 }
