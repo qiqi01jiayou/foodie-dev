@@ -4,6 +4,8 @@ import com.cjq.pojo.Users;
 import com.cjq.pojo.bo.UsersBO;
 import com.cjq.service.UserService;
 import com.cjq.utils.JSONResult;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +15,7 @@ import javax.annotation.Resource;
  * @author 被狗追过的夏天
  * date 2020-05-17
  */
+@Api(value = "注册登录",tags = {"用于注册登录的相关接口"})
 @RestController
 @RequestMapping("/passport")
 public class PassportController {
@@ -20,7 +23,8 @@ public class PassportController {
     @Resource
     private UserService userService;
 
-    @GetMapping("/usernameIsExists")
+    @ApiOperation(value="用户名是否存在",notes = "用户名是否存在",httpMethod = "GET")
+    @GetMapping("/usernameIsExist")
     public JSONResult usernameIsExists(@RequestParam String username) {
         if(StringUtils.isBlank(username)){
             return JSONResult.errorMsg("用户名不能为空");
@@ -32,7 +36,8 @@ public class PassportController {
         return JSONResult.ok();
     }
 
-    @PostMapping("/register")
+    @ApiOperation(value="用户注册",notes = "用户注册",httpMethod = "POST")
+    @PostMapping("/regist")
     public JSONResult createUsers(@RequestBody  UsersBO userBO){
 
         String username = userBO.getUsername();
