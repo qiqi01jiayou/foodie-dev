@@ -18,6 +18,6 @@ public class UsersBO {
     @ApiModelProperty(value="密码",example = "123456")
     private String password;
 
-    @ApiModelProperty(value="确认密码",example = "123456")
+    @ApiModelProperty(value="确认密码",example = "123456",required = false)
     private String confirmPassword;
 }

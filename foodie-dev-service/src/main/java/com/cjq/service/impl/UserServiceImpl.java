@@ -66,6 +66,37 @@ public class UserServiceImpl implements UserService {
         users.setCreatedTime(new Date());
         users.setUpdatedTime(new Date());
         usersMapper.insert(users);
+        users = setNullProperty(users);
         return users;
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    @Override
+    public Users queryUserForLogin(String username, String password) {
+        Example userExample = new Example(Users.class);
+        Example.Criteria criteria = userExample.createCriteria();
+        criteria.andEqualTo("username", username);
+        try {
+            criteria.andEqualTo("password", MD5Utils.getMD5Str(password));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Users users = usersMapper.selectOneByExample(userExample);
+        if(users!=null){
+            users = setNullProperty(users);
+        }
+        return users;
+    }
+
+
+    //屏蔽数据
+    private Users setNullProperty(Users userResult) {
+        userResult.setPassword(null);
+        userResult.setMobile(null);
+        userResult.setEmail(null);
+        userResult.setCreatedTime(null);
+        userResult.setUpdatedTime(null);
+        userResult.setBirthday(null);
+        return userResult;
     }
 }
