@@ -5,12 +5,14 @@ import com.cjq.pojo.Items;
 import com.cjq.pojo.ItemsImg;
 import com.cjq.pojo.ItemsParam;
 import com.cjq.pojo.ItemsSpec;
+import lombok.Data;
 
 import java.util.List;
 
 /**
  * 商品详情VO
  */
+@Data
 public class ItemInfoVO {
 
     private Items item;
@@ -18,35 +20,4 @@ public class ItemInfoVO {
     private List<ItemsSpec> itemSpecList;
     private ItemsParam itemParams;
 
-    public Items getItem() {
-        return item;
-    }
-
-    public void setItem(Items item) {
-        this.item = item;
-    }
-
-    public List<ItemsImg> getItemImgList() {
-        return itemImgList;
-    }
-
-    public void setItemImgList(List<ItemsImg> itemImgList) {
-        this.itemImgList = itemImgList;
-    }
-
-    public List<ItemsSpec> getItemSpecList() {
-        return itemSpecList;
-    }
-
-    public void setItemSpecList(List<ItemsSpec> itemSpecList) {
-        this.itemSpecList = itemSpecList;
-    }
-
-    public ItemsParam getItemParams() {
-        return itemParams;
-    }
-
-    public void setItemParams(ItemsParam itemParams) {
-        this.itemParams = itemParams;
-    }
 }
