@@ -3,17 +3,16 @@ package com.cjq.Controller.center;
 import com.cjq.Controller.BaseController;
 import com.cjq.pojo.Users;
 import com.cjq.pojo.bo.center.CenterUserBO;
+import com.cjq.pojo.vo.UsersVO;
 import com.cjq.resource.FileUpload;
 import com.cjq.service.center.CenterUserService;
-import com.cjq.utils.CookieUtils;
-import com.cjq.utils.DateUtil;
-import com.cjq.utils.JSONResult;
-import com.cjq.utils.JsonUtils;
+import com.cjq.utils.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -30,6 +29,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Api(value = "用户信息接口", tags = {"用户信息相关接口"})
 @RestController
@@ -41,6 +41,9 @@ public class CenterUserController extends BaseController {
 
     @Autowired
     private FileUpload fileUpload;
+
+    @Autowired
+    private RedisOperator redisOperator;
 
     @ApiOperation(value = "用户头像修改", notes = "用户头像修改", httpMethod = "POST")
     @PostMapping("uploadFace")
@@ -127,12 +130,14 @@ public class CenterUserController extends BaseController {
         // 更新用户头像到数据库
         Users userResult = centerUserService.updateUserFace(userId, finalUserFaceUrl);
 
-        userResult = setNullProperty(userResult);
+        //userResult = setNullProperty(userResult);
+
+
+        // 后续要改，增加令牌token，会整合进redis，分布式会话
+        UsersVO usersVO = getUsersVO(userResult);
+
         CookieUtils.setCookie(request, response, "user",
-                JsonUtils.objectToJson(userResult), true);
-
-        // TODO 后续要改，增加令牌token，会整合进redis，分布式会话
-
+                JsonUtils.objectToJson(usersVO), true);
         return JSONResult.ok();
     }
 
@@ -157,13 +162,26 @@ public class CenterUserController extends BaseController {
 
         Users userResult = centerUserService.updateUserInfo(userId, centerUserBO);
 
-        userResult = setNullProperty(userResult);
-        CookieUtils.setCookie(request, response, "user",
-                JsonUtils.objectToJson(userResult), true);
+      //  userResult = setNullProperty(userResult);
 
-        // TODO 后续要改，增加令牌token，会整合进redis，分布式会话
+
+        //后续要改，增加令牌token，会整合进redis，分布式会话
+        UsersVO usersVO = getUsersVO(userResult);
+
+        CookieUtils.setCookie(request, response, "user",
+                JsonUtils.objectToJson(usersVO), true);
 
         return JSONResult.ok();
+    }
+
+    private UsersVO getUsersVO(Users user) {
+        String uniqueToken = UUID.randomUUID().toString();
+        redisOperator.set(REDIS_USER_TOKEN+":"+user.getId(),uniqueToken);
+
+        UsersVO usersVO = new UsersVO();
+        BeanUtils.copyProperties(user,usersVO);
+        usersVO.setUserUniqueToken(uniqueToken);
+        return usersVO;
     }
 
     private Map<String, String> getErrors(BindingResult result) {

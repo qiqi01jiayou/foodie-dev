@@ -6,6 +6,7 @@ import com.cjq.mapper.OrderItemsMapper;
 import com.cjq.mapper.OrderStatusMapper;
 import com.cjq.mapper.OrdersMapper;
 import com.cjq.pojo.*;
+import com.cjq.pojo.bo.ShopcartBO;
 import com.cjq.pojo.bo.SubmitOrderBO;
 import com.cjq.pojo.vo.MerchantOrdersVO;
 import com.cjq.pojo.vo.OrderVO;
@@ -45,7 +46,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public OrderVO createOrder(SubmitOrderBO submitOrderBO) {
+    public OrderVO createOrder(SubmitOrderBO submitOrderBO, List<ShopcartBO> list) {
 
         String userId = submitOrderBO.getUserId();
         String addressId = submitOrderBO.getAddressId();
@@ -89,9 +90,14 @@ public class OrderServiceImpl implements OrderService {
         Integer totalAmount = 0;    // 商品原价累计
         Integer realPayAmount = 0;  // 优惠后的实际支付价格累计
         for (String itemSpecId : itemSpecIdArr) {
-
-            // TODO 整合redis后，商品购买的数量重新从redis的购物车中获取
-            int buyCounts = 1;
+            ShopcartBO shopcartBO = null;
+            for (ShopcartBO cart : list) {
+                if(cart.getSpecId().equals(itemSpecId)){
+                    shopcartBO = cart;
+                }
+            }
+            // 整合redis后，商品购买的数量重新从redis的购物车中获取
+            int buyCounts = shopcartBO!=null?shopcartBO.getBuyCounts():1;
 
             // 2.1 根据规格id，查询规格的具体信息，主要获取价格
             ItemsSpec itemSpec = itemService.queryItemSpecById(itemSpecId);

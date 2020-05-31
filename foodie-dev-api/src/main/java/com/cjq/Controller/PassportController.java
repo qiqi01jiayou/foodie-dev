@@ -2,21 +2,22 @@ package com.cjq.Controller;
 
 import com.cjq.pojo.Users;
 import com.cjq.pojo.bo.UsersBO;
+import com.cjq.pojo.vo.UsersVO;
 import com.cjq.service.UserService;
-import com.cjq.utils.CookieUtils;
-import com.cjq.utils.JSONResult;
-import com.cjq.utils.JsonUtils;
-import com.cjq.utils.MD5Utils;
+import com.cjq.utils.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.UUID;
 
 /**
  * @author 被狗追过的夏天
@@ -25,12 +26,15 @@ import javax.servlet.http.HttpServletResponse;
 @Api(value = "注册登录",tags = {"用于注册登录的相关接口"})
 @RestController
 @RequestMapping("/passport")
-public class PassportController {
+public class PassportController extends BaseController{
 
     public final static Logger logger = LoggerFactory.getLogger(PassportController.class);
 
     @Resource
     private UserService userService;
+
+    @Autowired
+    private RedisOperator redisOperator;
 
     @ApiOperation(value = "用户登录", notes = "用户登录", httpMethod = "POST")
     @PostMapping("/login")
@@ -54,17 +58,15 @@ public class PassportController {
             return JSONResult.errorMsg("用户名或密码不正确");
         }
 
-       CookieUtils.setCookie(request, response, "user",
-                JsonUtils.objectToJson(userResult), true);
 
-
-        // TODO 生成用户token，存入redis会话
+        //生成用户token，存入redis会话
+        UsersVO usersVO = getUsersVO(userResult);
+        CookieUtils.setCookie(request, response, "user",
+                JsonUtils.objectToJson(usersVO), true);
         // TODO 同步购物车数据
 
         return JSONResult.ok(userResult);
     }
-
-
 
 
     @ApiOperation(value="用户名是否存在",notes = "用户名是否存在",httpMethod = "GET")
@@ -110,9 +112,23 @@ public class PassportController {
             return JSONResult.errorMsg("两次密码输入不一致");
         }
         Users user = userService.createUser(userBO);
+
+        //实现用户的redis会话
+        UsersVO usersVO = getUsersVO(user);
+
         CookieUtils.setCookie(request, response, "user",
-                JsonUtils.objectToJson(user), true);
+                JsonUtils.objectToJson(usersVO), true);
         return JSONResult.ok();
+    }
+
+    private UsersVO getUsersVO(Users user) {
+        String uniqueToken = UUID.randomUUID().toString();
+        redisOperator.set(REDIS_USER_TOKEN+":"+user.getId(),uniqueToken);
+
+        UsersVO usersVO = new UsersVO();
+        BeanUtils.copyProperties(user,usersVO);
+        usersVO.setUserUniqueToken(uniqueToken);
+        return usersVO;
     }
 
     @ApiOperation(value = "用户退出登录", notes = "用户退出登录", httpMethod = "POST")
@@ -124,7 +140,8 @@ public class PassportController {
         // 清除用户的相关信息的cookie
         CookieUtils.deleteCookie(request, response, "user");
 
-        // TODO 用户退出登录，需要清空购物车
+        //用户退出登录
+        redisOperator.del(REDIS_USER_TOKEN+":"+userId);
         // TODO 分布式会话中需要清除用户数据
 
         return JSONResult.ok();

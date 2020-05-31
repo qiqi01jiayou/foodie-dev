@@ -39,6 +39,11 @@ spring:
       max-request-size: 512000  # 请求大小限制为500kb
 #  session:
 #    store-type: redis
+  thymeleaf:
+    mode: HTML
+    encoding: UTF-8
+    prefix: classpath:/templates/
+    suffix: .html
 
 
 ############################################################

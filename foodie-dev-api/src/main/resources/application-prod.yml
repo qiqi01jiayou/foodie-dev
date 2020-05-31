@@ -1,0 +1,13 @@
+server:
+  port: 8088
+
+spring:
+  datasource:                                           # 数据源的相关配置
+    url: jdbc:mysql://8.129.177.173:3306/foodie-shop-dev?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true
+    username: root
+    password: 149526
+  redis:
+    database: 0
+    host: 8.129.177.173
+    port: 6379
+    password: 149526

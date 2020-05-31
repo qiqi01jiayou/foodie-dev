@@ -15,6 +15,7 @@ public class BaseController {
 
     public static final Integer COMMON_PAGE_SIZE = 10;
     public static final Integer PAGE_SIZE = 20;
+    public static final String REDIS_USER_TOKEN = "redis_user_token";
 
     // 支付中心的调用地址
     String paymentUrl = "http://payment.t.mukewang.com/foodie-payment/payment/createMerchantOrder";		// produce
@@ -22,7 +23,7 @@ public class BaseController {
     //http://payment.t.mukewang.com/foodie-payment/payment/getPaymentCenterOrderInfo?merchantOrderId=2005249P4ZTHMK40&merchantUserId=2005200F2PHYAWZC
     // 微信支付成功 -> 支付中心 -> 天天吃货平台
     //                       |-> 回调通知的url
-    String payReturnUrl = "http://rt9ffr.natappfree.cc/orders/notifyMerchantOrderPaid";
+    String payReturnUrl = "http://8.129.177.173:8088/foodie-dev-api/orders/notifyMerchantOrderPaid";
 
     // 用户上传头像的位置
     public static final String IMAGE_USER_FACE_LOCATION = File.separator + "workspaces" +

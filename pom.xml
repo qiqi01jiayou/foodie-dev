@@ -14,7 +14,8 @@
         <module>foodie-dev-mapper</module>
         <module>foodie-dev-service</module>
         <module>foodie-dev-api</module>
-      <!--  <module>foodie-dev-payment</module>-->
+        <module>foodie-dev-sso</module>
+        <!--  <module>foodie-dev-payment</module>-->
     </modules>
 
 
@@ -85,6 +86,22 @@
             <version>1.2.12</version>
         </dependency>
 
+        <!--springSession-->
+        <!--<dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>-->
+
+        <!--redis-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
         <!-- apache 工具类 -->
         <dependency>
             <groupId>commons-codec</groupId>
@@ -126,24 +143,25 @@
             <version>1.6</version>
         </dependency>
 
-          <!--引入日志依赖 抽象层 与 实现层-->
-          <dependency>
-              <groupId>org.slf4j</groupId>
-              <artifactId>slf4j-api</artifactId>
-              <version>1.7.21</version>
-          </dependency>
-          <dependency>
-              <groupId>org.slf4j</groupId>
-              <artifactId>slf4j-log4j12</artifactId>
-              <version>1.7.21</version>
-          </dependency>
+        <!--引入日志依赖 抽象层 与 实现层-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.21</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.21</version>
+        </dependency>
 
-         <!-- 打包war [3] 添加依赖 -->
-        <!-- <dependency>
-             <groupId>javax.servlet</groupId>
-             <artifactId>javax.servlet-api</artifactId>
-             <scope>provided</scope>
-         </dependency>-->
+        <!-- 打包war [3] 添加依赖 -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <properties>

@@ -3,13 +3,18 @@ package com.cjq.Controller;
 import com.cjq.enums.OrderStatusEnum;
 import com.cjq.enums.PayMethod;
 import com.cjq.pojo.OrderStatus;
+import com.cjq.pojo.bo.ShopcartBO;
 import com.cjq.pojo.bo.SubmitOrderBO;
+import com.cjq.pojo.vo.CategoryVO;
 import com.cjq.pojo.vo.MerchantOrdersVO;
 import com.cjq.pojo.vo.OrderVO;
 import com.cjq.service.OrderService;
 import com.cjq.utils.JSONResult;
+import com.cjq.utils.JsonUtils;
+import com.cjq.utils.RedisOperator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +27,8 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 @Api(value = "订单相关", tags = {"订单相关的api接口"})
 @RequestMapping("orders")
@@ -36,6 +43,9 @@ public class OrdersController extends BaseController {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private RedisOperator redisOperator;
+
     @ApiOperation(value = "用户下单", notes = "用户下单", httpMethod = "POST")
     @PostMapping("/create")
     public JSONResult create(
@@ -49,9 +59,14 @@ public class OrdersController extends BaseController {
         }
 
 //        System.out.println(submitOrderBO.toString());
+        String shopCart = redisOperator.get("shop_cart:"+submitOrderBO.getUserId());
+        if(StringUtils.isNotBlank(shopCart)){
+            return JSONResult.errorMsg("购物数据不正确");
+        }
+        List<ShopcartBO> list  = JsonUtils.jsonToList(shopCart, ShopcartBO.class);
 
         // 1. 创建订单
-        OrderVO orderVO = orderService.createOrder(submitOrderBO);
+        OrderVO orderVO = orderService.createOrder(submitOrderBO,list);
         String orderId = orderVO.getOrderId();
 
         // 2. 创建订单以后，移除购物车中已结算（已提交）的商品
